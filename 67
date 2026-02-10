@@ -1,0 +1,175 @@
+-- TF DUELO TP SCRIPT (ONLY DUELO | Q = TP 1 -> 0.5s -> TP 2)
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+--==============================
+-- VARIÁVEIS
+--==============================
+local tp1, tp2 = nil, nil
+local busy = false
+local markers = {}
+
+--==============================
+-- CHAR
+--==============================
+local function char()
+    return player.Character or player.CharacterAdded:Wait()
+end
+
+local function hrp()
+    return char():WaitForChild("HumanoidRootPart")
+end
+
+--==============================
+-- MARKERS
+--==============================
+local function clearMarkers()
+    for _, m in pairs(markers) do
+        if m then m:Destroy() end
+    end
+    table.clear(markers)
+end
+
+local function createMarker(pos, color)
+    local p = Instance.new("Part")
+    p.Size = Vector3.new(1.5,1.5,1.5)
+    p.Shape = Enum.PartType.Ball
+    p.Material = Enum.Material.Neon
+    p.Color = color
+    p.Anchored = true
+    p.CanCollide = false
+    p.Position = pos
+    p.Parent = workspace
+    table.insert(markers, p)
+end
+
+--==============================
+-- GUI
+--==============================
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "TF_DUELO_GUI"
+gui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.fromScale(0.23,0.32)
+frame.Position = UDim2.fromScale(0.385,0.34)
+frame.BackgroundColor3 = Color3.fromRGB(12,16,30)
+frame.Visible = false
+frame.Active = true
+frame.Draggable = true
+
+local stroke = Instance.new("UIStroke", frame)
+stroke.Color = Color3.fromRGB(255,200,0)
+stroke.Thickness = 2
+
+-- TÍTULO
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1,0,0.12,0)
+title.BackgroundTransparency = 1
+title.Text = "MODO CRIA"
+title.TextScaled = true
+title.TextColor3 = Color3.fromRGB(255,80,80)
+
+-- by MATH (bem pequeno)
+local credit = Instance.new("TextLabel", frame)
+credit.Size = UDim2.new(0.25,0,0.05,0)
+credit.Position = UDim2.new(0.01,0,0.01,0)
+credit.BackgroundTransparency = 1
+credit.Text = "MATH"
+credit.TextScaled = true
+credit.TextColor3 = Color3.fromRGB(160,160,160)
+
+local function label(txt,y,color)
+    local l = Instance.new("TextLabel", frame)
+    l.Size = UDim2.new(0.9,0,0.11,0)
+    l.Position = UDim2.new(0.05,0,y,0)
+    l.BackgroundColor3 = color
+    l.Text = txt
+    l.TextScaled = true
+    l.TextColor3 = Color3.new(1,1,1)
+    return l
+end
+
+local function button(txt,y,color)
+    local b = Instance.new("TextButton", frame)
+    b.Size = UDim2.new(0.9,0,0.11,0)
+    b.Position = UDim2.new(0.05,0,y,0)
+    b.Text = txt
+    b.TextScaled = true
+    b.BackgroundColor3 = color
+    b.TextColor3 = Color3.new(1,1,1)
+    return b
+end
+
+local tp1Label = label("TP 1 NÃO SALVO",0.14,Color3.fromRGB(200,80,80))
+local tp2Label = label("TP 2 NÃO SALVO",0.27,Color3.fromRGB(255,160,80))
+
+local set1Btn = button("SET 1",0.42,Color3.fromRGB(255,90,90))
+local set2Btn = button("SET 2",0.55,Color3.fromRGB(255,120,60))
+local resetBtn = button("RESET",0.68,Color3.fromRGB(120,120,120))
+
+local info = Instance.new("TextLabel", frame)
+info.Size = UDim2.new(1,0,0.08,0)
+info.Position = UDim2.new(0,0,0.86,0)
+info.BackgroundTransparency = 1
+info.Text = "TP guloso = Q"
+info.TextScaled = true
+info.TextColor3 = Color3.fromRGB(200,200,200)
+
+--==============================
+-- SETS DUELO
+--==============================
+local function applySet(set)
+    if set == 1 then
+        tp1 = Vector3.new(-468,-6,25)
+        tp2 = Vector3.new(-473,-5,115)
+    else
+        tp1 = Vector3.new(-470,-6,96)
+        tp2 = Vector3.new(-472,-5,9)
+    end
+
+    clearMarkers()
+    createMarker(tp1, Color3.fromRGB(255,80,80))
+    createMarker(tp2, Color3.fromRGB(255,200,80))
+
+    tp1Label.Text = "TP 1 SALVO ✓"
+    tp2Label.Text = "TP 2 SALVO ✓"
+end
+
+set1Btn.MouseButton1Click:Connect(function() applySet(1) end)
+set2Btn.MouseButton1Click:Connect(function() applySet(2) end)
+
+resetBtn.MouseButton1Click:Connect(function()
+    tp1, tp2 = nil, nil
+    clearMarkers()
+    tp1Label.Text = "TP 1 NÃO SALVO"
+    tp2Label.Text = "TP 2 NÃO SALVO"
+end)
+
+--==============================
+-- ALT = ABRIR / FECHAR GUI
+--==============================
+UIS.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == Enum.KeyCode.LeftAlt or input.KeyCode == Enum.KeyCode.RightAlt then
+        frame.Visible = not frame.Visible
+    end
+end)
+
+--==============================
+-- Q = TP 1 -> 0.5s -> TP 2
+--==============================
+UIS.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == Enum.KeyCode.Q then
+        if tp1 and tp2 and not busy then
+            busy = true
+            hrp().CFrame = CFrame.new(tp1)
+            task.wait(0.5)
+            hrp().CFrame = CFrame.new(tp2)
+            busy = false
+        end
+    end
+end)
