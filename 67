@@ -72,15 +72,6 @@ title.Text = "MODO CRIA"
 title.TextScaled = true
 title.TextColor3 = Color3.fromRGB(255,80,80)
 
--- by MATH (bem pequeno)
-local credit = Instance.new("TextLabel", frame)
-credit.Size = UDim2.new(0.25,0,0.05,0)
-credit.Position = UDim2.new(0.01,0,0.01,0)
-credit.BackgroundTransparency = 1
-credit.Text = "MATH"
-credit.TextScaled = true
-credit.TextColor3 = Color3.fromRGB(160,160,160)
-
 local function label(txt,y,color)
     local l = Instance.new("TextLabel", frame)
     l.Size = UDim2.new(0.9,0,0.11,0)
