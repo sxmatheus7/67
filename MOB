@@ -1,0 +1,188 @@
+-- TF DUELO TP SCRIPT - VERSÃO MOBILE FINAL
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- ================= CHAR =================
+local function char()
+	return player.Character or player.CharacterAdded:Wait()
+end
+
+local function hrp()
+	return char():WaitForChild("HumanoidRootPart")
+end
+
+-- ================= VARIÁVEIS =================
+local tp1, tp2 = nil, nil
+local busy = false
+local markers = {}
+
+-- ================= MARKERS =================
+local function clearMarkers()
+	for _, m in pairs(markers) do
+		if m then m:Destroy() end
+	end
+	table.clear(markers)
+end
+
+local function createMarker(pos, color)
+	local p = Instance.new("Part")
+	p.Size = Vector3.new(1.5,1.5,1.5)
+	p.Shape = Enum.PartType.Ball
+	p.Material = Enum.Material.Neon
+	p.Color = color
+	p.Anchored = true
+	p.CanCollide = false
+	p.Position = pos
+	p.Parent = workspace
+	table.insert(markers, p)
+end
+
+-- ================= GUI =================
+local gui = Instance.new("ScreenGui")
+gui.Name = "TF_DUELO_MOBILE"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- MAIN
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 320, 0, 340)
+main.Position = UDim2.new(0.5, -160, 0.5, -170)
+main.BackgroundColor3 = Color3.fromRGB(15,18,28)
+main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
+main.Visible = true
+main.Parent = gui
+Instance.new("UICorner", main).CornerRadius = UDim.new(0,14)
+
+-- TOP BAR
+local top = Instance.new("Frame")
+top.Size = UDim2.new(1,0,0,40)
+top.BackgroundColor3 = Color3.fromRGB(22,26,38)
+top.BorderSizePixel = 0
+top.Parent = main
+Instance.new("UICorner", top).CornerRadius = UDim.new(0,14)
+
+-- TITLE
+local title = Instance.new("TextLabel")
+title.Text = "MODO CRIA"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.TextColor3 = Color3.fromRGB(255,90,90)
+title.BackgroundTransparency = 1
+title.Size = UDim2.new(1,-90,1,0)
+title.Position = UDim2.new(0,12,0,0)
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = top
+
+-- MINIMIZE
+local minimize = Instance.new("TextButton")
+minimize.Text = "–"
+minimize.Font = Enum.Font.GothamBold
+minimize.TextSize = 22
+minimize.TextColor3 = Color3.fromRGB(230,230,230)
+minimize.BackgroundColor3 = Color3.fromRGB(70,70,70)
+minimize.Size = UDim2.new(0,30,0,26)
+minimize.Position = UDim2.new(1,-68,0.5,-13)
+minimize.Parent = top
+Instance.new("UICorner", minimize)
+
+-- CLOSE
+local close = Instance.new("TextButton")
+close.Text = "X"
+close.Font = Enum.Font.GothamBold
+close.TextSize = 16
+close.TextColor3 = Color3.fromRGB(255,255,255)
+close.BackgroundColor3 = Color3.fromRGB(200,60,60)
+close.Size = UDim2.new(0,30,0,26)
+close.Position = UDim2.new(1,-34,0.5,-13)
+close.Parent = top
+Instance.new("UICorner", close)
+
+-- CONTENT
+local content = Instance.new("Frame")
+content.Size = UDim2.new(1,-20,1,-60)
+content.Position = UDim2.new(0,10,0,50)
+content.BackgroundTransparency = 1
+content.Parent = main
+
+local function makeBtn(text, y, color)
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(1,0,0,42)
+	b.Position = UDim2.new(0,0,0,y)
+	b.Text = text
+	b.Font = Enum.Font.GothamBold
+	b.TextSize = 16
+	b.TextColor3 = Color3.new(1,1,1)
+	b.BackgroundColor3 = color
+	b.Parent = content
+	Instance.new("UICorner", b)
+	return b
+end
+
+local tpBtn = makeBtn("TP (EXECUTAR)", 0, Color3.fromRGB(255,80,80))
+local set1Btn = makeBtn("SET 1", 52, Color3.fromRGB(255,120,80))
+local set2Btn = makeBtn("SET 2", 104, Color3.fromRGB(255,150,60))
+local resetBtn = makeBtn("RESET", 156, Color3.fromRGB(120,120,120))
+
+-- ================= BOTÃO RESTAURAR =================
+local restore = Instance.new("TextButton")
+restore.Size = UDim2.new(0,130,0,38)
+restore.Position = UDim2.new(0,20,0.5,-19)
+restore.Text = "MODO CRIA"
+restore.Font = Enum.Font.GothamBold
+restore.TextSize = 14
+restore.TextColor3 = Color3.new(1,1,1)
+restore.BackgroundColor3 = Color3.fromRGB(30,34,45)
+restore.Visible = false
+restore.Parent = gui
+Instance.new("UICorner", restore)
+
+-- ================= FUNÇÕES =================
+local function executeTP()
+	if tp1 and tp2 and not busy then
+		busy = true
+		hrp().CFrame = CFrame.new(tp1)
+		task.wait(0.5)
+		hrp().CFrame = CFrame.new(tp2)
+		busy = false
+	end
+end
+
+tpBtn.MouseButton1Click:Connect(executeTP)
+
+set1Btn.MouseButton1Click:Connect(function()
+	tp1 = Vector3.new(-468,-6,25)
+	tp2 = Vector3.new(-473,-5,115)
+	clearMarkers()
+	createMarker(tp1, Color3.fromRGB(255,80,80))
+	createMarker(tp2, Color3.fromRGB(255,200,80))
+end)
+
+set2Btn.MouseButton1Click:Connect(function()
+	tp1 = Vector3.new(-470,-6,96)
+	tp2 = Vector3.new(-472,-5,9)
+	clearMarkers()
+	createMarker(tp1, Color3.fromRGB(255,80,80))
+	createMarker(tp2, Color3.fromRGB(255,200,80))
+end)
+
+resetBtn.MouseButton1Click:Connect(function()
+	tp1, tp2 = nil, nil
+	clearMarkers()
+end)
+
+minimize.MouseButton1Click:Connect(function()
+	main.Visible = false
+	restore.Visible = true
+end)
+
+restore.MouseButton1Click:Connect(function()
+	main.Visible = true
+	restore.Visible = false
+end)
+
+close.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
